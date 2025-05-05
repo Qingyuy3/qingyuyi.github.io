@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Name | Data Scientist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {--primary:#1d4ed8; --bg:#f9fafb; --text:#111827;}
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+    body{background:var(--bg);color:var(--text);line-height:1.6;}
+    header{background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.05);padding:1.5rem 2rem;position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;}
+    header h1{font-size:1.5rem;font-weight:800;color:var(--primary);}
+    nav ul{display:flex;gap:1.5rem;list-style:none;}
+    nav a{color:var(--text);text-decoration:none;font-weight:600;}
+    nav a:hover{color:var(--primary);}
+    section{padding:4rem 2rem;max-width:900px;margin:auto;}
+    .hero{display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .hero img{width:160px;height:160px;border-radius:50%;object-fit:cover;margin-bottom:1.5rem;}
+    .hero h2{font-size:2rem;font-weight:800;margin-bottom:.5rem;}
+    .hero p{max-width:600px;}
+    h2{font-size:1.75rem;font-weight:800;margin-bottom:1rem;text-align:center;color:var(--primary);}    
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:2rem;}
+    .card{background:#fff;border-radius:1rem;padding:1.5rem;box-shadow:0 4px 8px rgba(0,0,0,.05);}
+    .card h3{margin-bottom:.5rem;font-size:1.25rem;font-weight:700;}
+    footer{padding:2rem;text-align:center;background:#fff;margin-top:4rem;}
+    footer a{color:var(--primary);text-decoration:none;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Your Name</h1>
+    <nav>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <img src="assets/avatar.jpg" alt="Your photo">
+    <h2>Hi, I'm Your Name 👋</h2>
+    <p>Brief one‑sentence elevator pitch (e.g., “Data scientist & operations researcher passionate about turning messy data into actionable strategy.”)</p>
+  </section>
+
+  <section id="about">
+    <h2>About Me</h2>
+    <p>Write a concise bio: education, current role, interests, fun facts…</p>
+  </section>
+
+  <section id="projects">
+    <h2>Selected Projects</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Project A</h3>
+        <p>2‑3 line description of the project, your contribution, tech stack, and key outcome.</p>
+        <p><a href="https://github.com/yourusername/projectA" target="_blank">View on GitHub →</a></p>
+      </div>
+      <div class="card">
+        <h3>Project B</h3>
+        <p>Short description of project B.</p>
+        <p><a href="https://github.com/yourusername/projectB" target="_blank">View on GitHub →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Get in Touch</h2>
+    <p>Email: <a href="mailto:you@example.com">you@example.com</a></p>
+    <p>LinkedIn: <a href="https://www.linkedin.com/in/yourprofile/" target="_blank">@yourprofile</a></p>
+  </section>
+
+  <footer>© <span id="year"></span> Your Name. Built with ❤️ & GitHub Pages. <a href="https://github.com/yourusername/yourusername.github.io">Source</a></footer>
+  <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+</body>
+</html>
