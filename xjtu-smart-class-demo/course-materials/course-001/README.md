@@ -1,27 +1,28 @@
-# course-001：数据分析与商业决策
+# course-001：智能分析
 
-这里存放实际课程资料。网站中的演示条目已经指向下列目录，但 Demo 不包含真实课程文件。
+本目录保存网站实际使用的课程文件。当前已整理一批历年教学资料，网站将它们重新映射为 8 个学习单元。
 
 ```text
 course-001/
-├─ chapter-01/
-│  ├─ slides/
-│  ├─ readings/
-│  ├─ exercises/
-│  ├─ cases/
-│  └─ answers/
-├─ chapter-02/
-├─ chapter-03/
-│  ├─ slides/
-│  ├─ readings/
-│  ├─ exercises/
-│  ├─ cases/
-│  └─ answers/
-├─ chapter-04/
-├─ chapter-05/
-│  └─ videos/
-└─ chapter-06/
+├─ README.md
+└─ former-semester-2024/
+   ├─ 课件/    10 份 PDF
+   ├─ 作业/     4 份 PDF
+   ├─ 数据/     2 份 CSV
+   └─ 代码/     2 份 IPYNB + 1 份 PY
 ```
 
-放入文件后，请同时更新项目根目录 `data/course.ts` 中对应资料的路径、文件大小、简介和关键词。
+## 网站中的学习顺序
 
+1. 课程概述与智能分析
+2. R 语言基础
+3. R 数据可视化与词云
+4. Python 与数据科学基础
+5. Pandas 与透视表实践
+6. 集成学习算法
+7. 静态网页爬虫
+8. 动态爬虫与综合项目
+
+文件目录保留原教学包的“课件、作业、数据、代码”分类；网站中的单元、摘要、关键词和打开路径统一登记在项目根目录 `data/course.ts`。
+
+新增学期资料时，建议新建 `semester-YYYY-term/` 或 `former-semester-YYYY/`，不要直接覆盖历年原文件。
