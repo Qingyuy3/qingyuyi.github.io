@@ -44,11 +44,7 @@ export function OverviewView({ setView }: { setView: (view: ViewKey) => void }) 
       <section className="relative overflow-hidden rounded-2xl bg-brand-blue px-5 py-7 text-white shadow-[0_18px_46px_rgba(35,68,119,0.2)] sm:px-8 sm:py-10">
         <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[42%] lg:block" aria-hidden="true">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_65%_45%,rgba(255,255,255,0.13),transparent_58%)]" />
-          <img src="./xjtu-seal-white.png" alt="" className="absolute right-10 top-1/2 size-48 -translate-y-[58%] object-contain opacity-[0.18] xl:right-16 xl:size-56" />
-          <div className="absolute bottom-7 right-8 text-right text-[11px] font-medium leading-5 tracking-[0.16em] text-white/55 xl:right-14">
-            <p>精勤求学 · 敦笃励志</p>
-            <p>果毅力行 · 忠恕任事</p>
-          </div>
+          <img src="./xjtu-seal-white.png" alt="" className="absolute right-10 top-1/2 size-52 -translate-y-1/2 object-contain opacity-[0.18] xl:right-16 xl:size-60" />
         </div>
         <div className="relative z-10 max-w-4xl lg:max-w-[64%]">
           <div className="mb-5 flex flex-wrap items-center gap-2"><Badge className="border-white/15 bg-white/12 text-white">{course.code}</Badge><span className="text-xs text-white/65">{course.term}</span></div>
