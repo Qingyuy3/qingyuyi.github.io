@@ -59,7 +59,7 @@ export const modules = [
   { week: 8, chapter: 8, title: '动态爬虫与综合项目', description: '围绕商品评论等动态页面完成抓取、整理与可视化分析。', status: '项目实践', items: ['动态页面与接口数据', '京东商品评论抓取', '结果可视化与课程大作业'] },
 ];
 
-const base = 'course-materials/course-001/former-semester-2024';
+const base = 'https://qingyuy3.github.io/qingyuyi.github.io/xjtu-smart-class-demo/course-materials/course-001/former-semester-2024';
 
 export const materials: Material[] = [
   { id: 'm01', title: '课程概述（2024）', chapter: 1, week: 1, type: '课件', format: 'PDF', size: '14.3 MB', path: `${base}/课件/0智能分析1(2024-1).pdf`, summary: '课程目标、32 学时安排、学习小组、实验报告与课程大作业要求。', keywords: ['第一章', '第一周', '课程概述', '课程要求', '考核', '智能分析', '机器学习', '数据挖掘'] },
