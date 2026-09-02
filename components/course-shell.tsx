@@ -42,7 +42,7 @@ export function CourseShell() {
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label="打开课程导航">{mobileOpen ? <X /> : <Menu />}</Button>
             <button type="button" onClick={() => navigate('overview')} className="flex items-center gap-3 text-left">
-              <span className="h-12 w-28 overflow-hidden rounded-md border border-border bg-white shadow-sm"><img src="./management-school-mark.webp" alt="西安交通大学管理学院标识" className="h-full w-full object-cover object-top" /></span>
+              <span className="grid h-16 w-14 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-white p-1 shadow-sm"><img src="./management-school-mark.webp" alt="西安交通大学管理学院标识" className="h-full w-full object-contain object-center" /></span>
               <div className="hidden sm:block"><p className="text-sm font-semibold tracking-tight text-brand-blue">西安交通大学管理学院</p><p className="text-xs text-muted-foreground">智能分析课程学习空间</p></div>
             </button>
           </div>
@@ -54,7 +54,7 @@ export function CourseShell() {
 
       <div className="mx-auto grid max-w-[1760px] grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)]">
         <aside className="sticky top-20 hidden h-[calc(100vh-80px)] border-r border-border/70 px-4 py-5 lg:block">
-          <div className="mb-6 overflow-hidden rounded-2xl border bg-card shadow-sm"><div className="h-24 overflow-hidden bg-white"><img src="./management-school-mark.webp" alt="西安交通大学管理学院院标" className="h-full w-full object-cover object-top" /></div><div className="border-t-4 border-brand-blue p-4"><div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><GraduationCap className="size-4" />当前课程</div><p className="font-semibold leading-snug text-brand-blue">{course.title}</p><p className="mt-1 text-xs text-muted-foreground">{course.term}</p></div></div>
+          <div className="mb-6 overflow-hidden rounded-2xl border bg-card shadow-sm"><div className="grid h-52 place-items-center overflow-hidden bg-white p-3"><img src="./management-school-mark.webp" alt="西安交通大学管理学院院标" className="h-full w-full object-contain object-center" /></div><div className="border-t-4 border-brand-blue p-4"><div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><GraduationCap className="size-4" />当前课程</div><p className="font-semibold leading-snug text-brand-blue">{course.title}</p><p className="mt-1 text-xs text-muted-foreground">{course.term}</p></div></div>
           <nav aria-label="课程导航" className="space-y-1">{navItems.map((item) => <button key={item.key} type="button" onClick={() => navigate(item.key)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${view === item.key ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}><item.icon className="size-[18px]" />{item.label}</button>)}</nav>
         </aside>
         <section className="min-w-0 px-4 py-7 sm:px-6 lg:px-7 xl:px-9 lg:py-8"><div className="w-full">{content}</div></section>
