@@ -1,15 +1,30 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight, FileText, LibraryBig, Search } from 'lucide-react';
+import { ExternalLink, FileText, LoaderCircle, MessageSquareText, RotateCcw, Send } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { materials } from '@/data/course';
 import type { Material } from '@/data/course';
 import { searchMaterials } from '@/lib/course-search';
 
-const suggestions = ['第一章的课程资料', 'Python 基础课件', 'Pandas 透视表练习', '网络爬虫作业'];
+const suggestions = ['第一章应该先学什么？', '解释一下 Pandas 透视表', '给我网络爬虫作业的提示', '随机森林为什么属于集成学习？'];
+const remoteEndpoint = 'https://xjtu-smart-class-demo.yiqingyuteddy.chatgpt.site/api/ta';
+
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  sources?: Material[];
+  fallback?: boolean;
+};
+
+const welcomeMessage: ChatMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content: '你好，我是《智能分析》课程助教。你可以问我课程概念、学习顺序、代码思路或作业提示，我会同时推荐对应的课程文件。',
+};
 
 type AIAssistantProps = {
   compact?: boolean;
@@ -18,56 +33,63 @@ type AIAssistantProps = {
 
 export function AIAssistant({ compact = false, onOpenMaterial }: AIAssistantProps) {
   const [query, setQuery] = useState('');
-  const [submittedQuery, setSubmittedQuery] = useState('');
-  const [results, setResults] = useState<Material[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([welcomeMessage]);
+  const [loading, setLoading] = useState(false);
 
-  function runSearch(nextQuery: string) {
+  function endpoint() {
+    if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) return remoteEndpoint;
+    return '/api/ta';
+  }
+
+  async function ask(nextQuery: string) {
     const clean = nextQuery.trim();
-    if (!clean) return;
-    setQuery(clean);
-    setSubmittedQuery(clean);
-    setResults(searchMaterials(clean));
+    if (!clean || loading) return;
+
+    const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: clean };
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
+    setQuery('');
+    setLoading(true);
+
+    try {
+      const response = await fetch(endpoint(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: nextMessages.map(({ role, content }) => ({ role, content })) }),
+      });
+      const result = await response.json() as { answer?: string; sourceIds?: string[]; error?: string };
+      if (!response.ok || !result.answer) throw new Error(result.error || '课程助教暂时无法回答');
+      const sources = (result.sourceIds || []).map((id) => materials.find((material) => material.id === id)).filter((material): material is Material => Boolean(material));
+      setMessages((current) => [...current, { id: `assistant-${Date.now()}`, role: 'assistant', content: result.answer!.replaceAll('**', ''), sources }]);
+    } catch {
+      const sources = searchMaterials(clean).slice(0, 3);
+      const fallbackText = sources.length
+        ? '课程助教暂时没有连接成功，但我先根据课程目录找到了几份可能相关的资料。你可以先打开查看，稍后再重新提问。'
+        : '课程助教暂时没有连接成功，课程目录中也没有找到明确匹配的资料。可以换成章节、主题或文件类型再问一次。';
+      setMessages((current) => [...current, { id: `assistant-${Date.now()}`, role: 'assistant', content: fallbackText, sources, fallback: true }]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl bg-brand-blue text-white shadow-[0_16px_40px_rgba(35,68,119,0.18)] ${compact ? 'p-5 sm:p-7' : 'p-6 sm:p-8'}`}>
-      <div className="relative">
-        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-white/75"><LibraryBig className="size-5" />课程资料检索</div>
-        <h2 className={`${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-semibold tracking-tight`}>快速找到需要的学习资料</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-white/72">可按学习单元、主题、文件类型或常见问法检索历年课件、作业、数据与代码。</p>
+    <div className="overflow-hidden rounded-2xl border border-primary/15 bg-card shadow-[0_16px_40px_rgba(35,68,119,0.12)]">
+      <div className={`bg-brand-blue text-white ${compact ? 'px-5 py-5 sm:px-7' : 'px-5 py-6 sm:px-7'}`}>
+        <div className="flex items-start justify-between gap-4"><div><div className="mb-2 flex items-center gap-2 text-sm font-medium text-white/75"><MessageSquareText className="size-5" />课程助教</div><h2 className={`${compact ? 'text-xl' : 'text-2xl'} font-semibold tracking-tight`}>有问题，直接问</h2><p className="mt-1 text-sm leading-6 text-white/72">概念解释、学习建议、代码思路和作业提示，回答会关联课程资料。</p></div><Button type="button" size="icon-sm" variant="ghost" onClick={() => { setMessages([welcomeMessage]); setQuery(''); }} className="text-white/70 hover:bg-white/10 hover:text-white" aria-label="重新开始对话"><RotateCcw /></Button></div>
+      </div>
 
-        <form onSubmit={(event) => { event.preventDefault(); runSearch(query); }} className="mt-5 flex gap-2 rounded-2xl bg-white p-2 shadow-lg">
-          <Search className="ml-2 mt-2.5 size-5 shrink-0 text-stone-400" />
-          <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="例如：有关于网络爬虫的学习资料吗？" aria-label="检索课程资料" className="h-10 border-0 bg-transparent text-slate-900 shadow-none focus-visible:ring-0" />
-          <Button type="submit" size="icon-lg" className="rounded-xl bg-white text-brand-blue hover:bg-white/90" aria-label="开始检索"><ArrowRight /></Button>
+      <div className={`space-y-4 overflow-y-auto bg-secondary/20 p-4 sm:p-5 ${compact ? 'max-h-[390px]' : 'max-h-[520px]'}`} aria-live="polite">
+        {messages.map((message) => <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === 'user' ? 'rounded-br-md bg-primary text-primary-foreground' : 'rounded-bl-md border bg-card text-foreground shadow-sm'}`}><p className="whitespace-pre-wrap">{message.content}</p>{message.sources?.length ? <div className="mt-3 space-y-2 border-t border-border/70 pt-3"><p className="text-[11px] font-semibold text-muted-foreground">相关课程资料</p>{message.sources.map((material, index) => onOpenMaterial ? <button key={material.id} type="button" onClick={() => onOpenMaterial(material)} className="flex w-full items-center gap-2 rounded-lg bg-secondary/70 px-3 py-2 text-left text-xs text-foreground transition hover:bg-secondary"><span className="shrink-0 font-semibold text-primary">资料{index + 1}</span><FileText className="size-4 shrink-0 text-primary" /><span className="min-w-0 flex-1 font-medium">{material.title}</span><ExternalLink className="size-3 shrink-0 text-muted-foreground" /></button> : <a key={material.id} href={material.path} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-lg bg-secondary/70 px-3 py-2 text-xs text-foreground transition hover:bg-secondary"><span className="shrink-0 font-semibold text-primary">资料{index + 1}</span><FileText className="size-4 shrink-0 text-primary" /><span className="min-w-0 flex-1 font-medium">{material.title}</span><ExternalLink className="size-3 shrink-0 text-muted-foreground" /></a>)}</div> : null}{message.fallback && <p className="mt-2 text-[11px] text-muted-foreground">已自动切换为本地资料检索</p>}</div></div>)}
+        {loading && <div className="flex justify-start"><div className="flex items-center gap-2 rounded-2xl rounded-bl-md border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm"><LoaderCircle className="size-4 animate-spin" />课程助教正在整理回答……</div></div>}
+      </div>
+
+      <div className="border-t bg-card p-4 sm:p-5">
+        {messages.length === 1 && <div className="mb-3 flex flex-wrap gap-2">{suggestions.map((suggestion) => <button key={suggestion} onClick={() => ask(suggestion)} className="rounded-full border bg-background px-3 py-1.5 text-xs text-muted-foreground transition hover:border-primary/35 hover:text-primary" type="button">{suggestion}</button>)}</div>}
+        <form onSubmit={(event) => { event.preventDefault(); void ask(query); }} className="flex items-end gap-2">
+          <Textarea value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void ask(query); } }} placeholder="例如：透视表应该怎么理解？" aria-label="向课程助教提问" className="max-h-32 min-h-11 resize-none bg-background" disabled={loading} />
+          <Button type="submit" size="icon-lg" className="mb-0.5 shrink-0" disabled={!query.trim() || loading} aria-label="发送问题"><Send /></Button>
         </form>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          {suggestions.map((suggestion) => (
-            <button key={suggestion} onClick={() => runSearch(suggestion)} className="rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/15" type="button">{suggestion}</button>
-          ))}
-        </div>
-
-        {submittedQuery && (
-          <div className="mt-5 rounded-2xl bg-white p-4 text-slate-900 shadow-xl sm:p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-sm font-medium"><Search className="size-4 text-white/80" />“{submittedQuery}”的检索结果</div>
-              <Badge variant="secondary">{results.length} 个结果</Badge>
-            </div>
-            {results.length ? (
-              <div className={`grid gap-3 ${compact ? 'lg:grid-cols-3' : 'md:grid-cols-2'}`}>
-                {results.slice(0, compact ? 3 : 5).map((material) => (
-                  <button key={material.id} onClick={() => onOpenMaterial?.(material)} className="group rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-left transition hover:border-brand-blue/40 hover:bg-white hover:shadow-sm" type="button">
-                    <div className="mb-2 flex items-start justify-between gap-2"><FileText className="size-5 text-brand-blue" /><span className="text-[11px] text-slate-500">{material.format}</span></div>
-                    <p className="text-sm font-semibold group-hover:text-brand-blue">{material.title}</p>
-                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">第 {material.chapter} 章 · {material.summary}</p>
-                  </button>
-                ))}
-              </div>
-            ) : <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">暂时没有匹配资料。可以换成章节、周次或主题关键词再试一次。</p>}
-            <p className="mt-4 text-[11px] text-slate-400">检索范围：历年课程目录 · 结果可直接打开原始文件</p>
-          </div>
-        )}
+        <p className="mt-2 text-[11px] text-muted-foreground">Enter 发送 · Shift + Enter 换行 · 回答仅供学习参考</p>
       </div>
     </div>
   );
