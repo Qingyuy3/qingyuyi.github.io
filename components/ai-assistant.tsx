@@ -10,7 +10,7 @@ import type { Material } from '@/data/course';
 import { searchMaterials } from '@/lib/course-search';
 
 const suggestions = ['第一章应该先学什么？', '解释一下 Pandas 透视表', '给我网络爬虫作业的提示', '随机森林为什么属于集成学习？'];
-const remoteEndpoint = 'https://xjtu-smart-class-demo.yiqingyuteddy.chatgpt.site/api/ta';
+const remoteEndpoint = 'https://xjtu-course-ta-api.pages.dev/api/ta';
 
 type ChatMessage = {
   id: string;
@@ -94,3 +94,4 @@ export function AIAssistant({ compact = false, onOpenMaterial }: AIAssistantProp
     </div>
   );
 }
+

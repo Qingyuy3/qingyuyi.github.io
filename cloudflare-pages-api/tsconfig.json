@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "types": [],
+    "incremental": false
+  },
+  "include": ["env.d.ts", "functions/**/*.ts"],
+  "exclude": ["../node_modules"]
+}
+

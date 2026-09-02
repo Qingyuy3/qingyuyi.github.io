@@ -1,0 +1,30 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "xjtu-course-ta",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "secrets": {
+    "required": ["DEEPSEEK_API_KEY"]
+  },
+  "vars": {
+    "DEEPSEEK_MODEL": "deepseek-v4-flash"
+  },
+  "ratelimits": [
+    {
+      "name": "COURSE_TA_RATE_LIMITER",
+      "namespace_id": "913001",
+      "simple": {
+        "limit": 20,
+        "period": 60
+      }
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}
+
