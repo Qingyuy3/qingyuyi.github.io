@@ -42,8 +42,8 @@ export function CourseShell() {
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label="打开课程导航">{mobileOpen ? <X /> : <Menu />}</Button>
             <button type="button" onClick={() => navigate('overview')} className="flex items-center gap-3 text-left">
-              <span className="grid h-16 w-14 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-white p-1 shadow-sm"><img src="./management-school-mark.webp" alt="西安交通大学管理学院标识" className="h-full w-full object-contain object-center" /></span>
-              <div className="hidden sm:block"><p className="text-sm font-semibold tracking-tight text-brand-blue">西安交通大学管理学院</p><p className="text-xs text-muted-foreground">智能分析课程学习空间</p></div>
+              <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-full border border-border bg-white p-1.5 shadow-sm"><img src="./xjtu-seal-blue.png" alt="西安交通大学校徽" className="h-full w-full object-contain object-center" /></span>
+              <div className="hidden sm:block"><p className="text-sm font-semibold tracking-tight text-brand-blue">西安交通大学管理学院</p><p className="text-xs text-muted-foreground">智能商务分析与实践</p></div>
             </button>
           </div>
           <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="查看通知"><Bell /></Button><div className="ml-1 hidden items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 sm:flex"><div className="grid size-7 place-items-center rounded-full bg-secondary text-xs font-semibold">陈</div><span className="text-sm font-medium">陈同学</span></div></div>

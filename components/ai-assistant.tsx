@@ -5,7 +5,7 @@ import { ExternalLink, FileText, LoaderCircle, MessageSquareText, RotateCcw, Sen
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { materials } from '@/data/course';
+import { course, materials } from '@/data/course';
 import type { Material } from '@/data/course';
 import { searchMaterials } from '@/lib/course-search';
 
@@ -23,7 +23,7 @@ type ChatMessage = {
 const welcomeMessage: ChatMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: '你好，我是《智能分析》课程助教。你可以问我课程概念、学习顺序、代码思路或作业提示，我会同时推荐对应的课程文件。',
+  content: `你好，我是《${course.title}》课程助教。你可以问我课程概念、学习顺序、代码思路或作业提示，我会同时推荐对应的课程文件。`,
 };
 
 type AIAssistantProps = {
