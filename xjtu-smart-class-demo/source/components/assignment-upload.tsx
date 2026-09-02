@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { CheckCircle2, ExternalLink, File, Info, UploadCloud, X } from 'lucide-react';
+import { CheckCircle2, ExternalLink, File, UploadCloud, X } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -58,14 +58,14 @@ export function AssignmentUpload() {
           <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); chooseFile(event.dataTransfer.files[0]); }} className="rounded-2xl border-2 border-dashed border-border bg-background px-5 py-9 text-center transition hover:border-primary/40 hover:bg-secondary/30">
             <input ref={inputRef} type="file" accept=".pdf,.doc,.docx,.xlsx,.ipynb,.py,.r,.html" className="hidden" onChange={(event) => chooseFile(event.target.files?.[0])} />
             {!file ? (
-              <><UploadCloud className="mx-auto size-9 text-primary" /><p className="mt-3 text-sm font-medium">将文件拖到这里，或选择文件</p><p className="mt-1 text-xs text-muted-foreground">演示支持课程常用格式，最大 20 MB</p><Button variant="outline" className="mt-4" onClick={() => inputRef.current?.click()}>选择文件</Button></>
+              <><UploadCloud className="mx-auto size-9 text-primary" /><p className="mt-3 text-sm font-medium">将文件拖到这里，或选择文件</p><p className="mt-1 text-xs text-muted-foreground">支持课程常用格式，最大 20 MB</p><Button variant="outline" className="mt-4" onClick={() => inputRef.current?.click()}>选择文件</Button></>
             ) : (
               <div className="mx-auto flex max-w-md items-center gap-3 rounded-xl border bg-card p-3 text-left shadow-sm"><div className="grid size-10 place-items-center rounded-lg bg-primary/8 text-primary"><File className="size-5" /></div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{file.name}</p><p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p></div><Button variant="ghost" size="icon-sm" aria-label="移除文件" onClick={() => { setFile(null); setSubmitted(false); }}><X /></Button></div>
             )}
           </div>
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-          {submitted && <div className="mt-4 flex items-start gap-3 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-900"><CheckCircle2 className="mt-0.5 size-5 shrink-0" /><div><strong>演示提交成功</strong><p className="mt-1 text-emerald-800/75">状态仅保存在当前页面，不会上传到学校服务器。</p></div></div>}
-          <div className="mt-5 flex flex-col-reverse justify-between gap-3 sm:flex-row sm:items-center"><p className="flex items-center gap-2 text-xs text-muted-foreground"><Info className="size-4" />Demo 不会保存文件内容，刷新页面后需重新选择。</p><Button disabled={!file || submitted} onClick={() => setSubmitted(true)}>{submitted ? '已提交' : '确认提交'}</Button></div>
+          {submitted && <div className="mt-4 flex items-start gap-3 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-900"><CheckCircle2 className="mt-0.5 size-5 shrink-0" /><div><strong>提交成功</strong><p className="mt-1 text-emerald-800/75">可在作业列表中查看当前提交状态。</p></div></div>}
+          <div className="mt-5 flex justify-end"><Button disabled={!file || submitted} onClick={() => setSubmitted(true)}>{submitted ? '已提交' : '确认提交'}</Button></div>
         </CardContent>
       </Card>
     </div>

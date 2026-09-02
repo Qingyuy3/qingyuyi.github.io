@@ -13,18 +13,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://xjtu-smart-class-demo.yiqingyuteddy.chatgpt.site'),
-  title: '数智课堂｜西安交通大学管理学院',
-  description: '西安交通大学管理学院“智能分析”历年课程资料、AI 检索、互动小测与作业演示平台。',
+  metadataBase: new URL('https://qingyuy3.github.io/qingyuyi.github.io/xjtu-smart-class-demo/'),
+  title: '智能分析课程｜西安交通大学管理学院',
+  description: '西安交通大学管理学院“智能分析”课程资料、主题检索、互动小测与作业学习平台。',
   openGraph: {
-    title: '数智课堂｜西安交通大学管理学院',
+    title: '智能分析课程学习空间',
     description: '智能分析历年课件、作业、数据和代码的一体化中文课程空间。',
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: '数智课堂课程学习空间' }],
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: '智能分析课程学习空间' }],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: '数智课堂｜西安交通大学管理学院',
+    title: '智能分析课程学习空间',
     description: '智能分析历年课件、作业、数据和代码的一体化中文课程空间。',
     images: ['/og.png'],
   },
