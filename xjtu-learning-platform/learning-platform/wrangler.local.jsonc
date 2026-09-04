@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "xjtu-learning-pilot-local",
+  "main": "dist/_worker.js",
+  "compatibility_date": "2026-09-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {"directory":"dist", "binding":"ASSETS", "run_worker_first":["/api/*"], "not_found_handling":"single-page-application"},
+  "d1_databases": [{"binding":"DB","database_name":"xjtu-learning-pilot","database_id":"dfa8ea6f-a1f1-4023-99b2-6e81b8a831fb","migrations_dir":"migrations"}],
+  "r2_buckets": [{"binding":"FILES","bucket_name":"xjtu-learning-pilot"}],
+  "services": [{"binding":"TA_WORKER","service":"xjtu-course-ta"}],
+  "vars": {"PUBLIC_ORIGIN":"http://localhost:8790"},
+  "secrets": {"required":["AUTH_SECRET"]}
+}

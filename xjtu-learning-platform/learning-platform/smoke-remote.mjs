@@ -1,0 +1,14 @@
+import {readFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const base='https://xjtu-learning-pilot.pages.dev';
+const {password}=JSON.parse(await readFile('learning-platform/private/test-remote.json','utf8'));
+const login=await fetch(`${base}/api/login`,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({username:'teacher',password})});
+assert.equal(login.status,200);
+const cookie=login.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
+const me=await fetch(`${base}/api/me`,{headers:{Cookie:cookie}});
+assert.equal((await me.json()).user.role,'teacher');
+const ta=await fetch(`${base}/api/ta`,{method:'POST',headers:{Origin:base,Cookie:cookie,'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:'第一章应先读哪份资料？请简短回答。'}]})});
+const result=await ta.json();
+assert.equal(ta.status,200);
+assert.ok(result.answer&&result.sourceIds.includes('m01'));
+console.log('PASS final cloud login, session and real Mini TA response (no credentials printed)');

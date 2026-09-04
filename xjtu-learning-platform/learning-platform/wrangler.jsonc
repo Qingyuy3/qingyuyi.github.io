@@ -1,0 +1,15 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "xjtu-learning-pilot",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-09-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [{
+    "binding": "DB", "database_name": "xjtu-learning-pilot",
+    "database_id": "dfa8ea6f-a1f1-4023-99b2-6e81b8a831fb",
+    "migrations_dir": "./migrations"
+  }],
+  "r2_buckets": [{"binding": "FILES", "bucket_name": "xjtu-learning-pilot"}],
+  "services": [{"binding": "TA_WORKER", "service": "xjtu-course-ta"}],
+  "vars": {"PUBLIC_ORIGIN": "https://xjtu-learning-pilot.pages.dev"}
+}

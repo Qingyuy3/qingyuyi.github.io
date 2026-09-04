@@ -1,0 +1,7 @@
+{
+  "name": "material-management-isolated-tests",
+  "compatibility_date": "2026-09-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [{ "binding": "DB", "database_name": "material-tests", "database_id": "00000000-0000-0000-0000-000000000001" }],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "material-tests" }]
+}
