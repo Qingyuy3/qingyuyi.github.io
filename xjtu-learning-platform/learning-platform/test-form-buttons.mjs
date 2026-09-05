@@ -16,7 +16,7 @@ assert.match(
   /type="submit"/,
 );
 let submitCount = 0;
-for (const file of ['session.tsx', 'views.tsx', 'material-manager.tsx']) {
+for (const file of ['session.tsx', 'views.tsx', 'material-manager.tsx', 'activity-ui.tsx']) {
   const source = ts.createSourceFile(
     file,
     await readFile(new URL(file, import.meta.url), 'utf8'),
@@ -52,7 +52,7 @@ for (const file of ['session.tsx', 'views.tsx', 'material-manager.tsx']) {
 }
 assert.equal(
   submitCount,
-  4,
+  5,
   'Check login/password, assignment, material submission and material editing',
 );
 console.log(

@@ -13,6 +13,7 @@ import {
 import { handleUploads } from './uploads';
 import { handleMaterialAdmin } from './materials';
 import { handleSubmissionOverview } from './submissions';
+import { handleActivity } from './activity';
 
 type User = {
   id: string;
@@ -152,6 +153,13 @@ async function handle(request: Request, env: PagesEnv): Promise<Response> {
   const teacher = user.role === 'admin';
   if (path.startsWith('/api/admin/'))
     requireCondition(teacher, 403, '此操作仅限教师。');
+
+  if (
+    path === '/api/announcements' ||
+    path.startsWith('/api/notifications') ||
+    path.startsWith('/api/admin/announcements')
+  )
+    return handleActivity(request, env, user);
 
   if (path === '/api/admin/submission-overview' && request.method === 'GET')
     return handleSubmissionOverview(request, env, user);
@@ -319,10 +327,11 @@ async function handle(request: Request, env: PagesEnv): Promise<Response> {
   if (path === '/api/posts' && request.method === 'GET') {
     const before = Number(url.searchParams.get('before') || Date.now() + 1);
     requireCondition(Number.isSafeInteger(before), 400, '分页参数不正确。');
+    const thread = url.searchParams.get('threadId');
     const roots = await env.DB.prepare(
-      'SELECT p.*,u.name FROM posts p JOIN user u ON u.id=p.author_id WHERE p.parent_id IS NULL AND p.hidden=0 AND p.created_at<? ORDER BY p.created_at DESC LIMIT 30',
+      `SELECT p.*,u.name FROM posts p JOIN user u ON u.id=p.author_id WHERE p.parent_id IS NULL AND p.hidden=0 AND ${thread ? 'p.id=?' : 'p.created_at<?'} ORDER BY p.created_at DESC LIMIT 30`,
     )
-      .bind(before)
+      .bind(thread ? text(thread, 80, '讨论编号') : before)
       .all();
     const ids = roots.results.map((p) => String(p.id));
     const replies = ids.length

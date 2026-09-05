@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api, useLearning, type LearningUser } from './session';
 import { MaterialManager } from './material-manager';
 import { SubmissionOverview } from './submission-overview';
+import { AnnouncementsAdmin } from './activity-ui';
 import {
   parseRoster,
   mergeCredential,
@@ -77,7 +78,7 @@ function Download({ file }: { file: CourseFile }) {
   );
 }
 
-export function OnlineWork() {
+export function OnlineWork({ focusId = '' }: { focusId?: string }) {
   const [tasks, setTasks] = useState<Assignment[]>([]),
     [files, setFiles] = useState<CourseFile[]>([]),
     [selected, setSelected] = useState(''),
@@ -95,7 +96,14 @@ export function OnlineWork() {
     ]);
     setTasks(a.assignments);
     setFiles(b.files);
-    setSelected((current) => current || a.assignments[0]?.id || '');
+    setSelected(
+      (current) =>
+        current ||
+        a.assignments.find((t) => t.id === focusId)?.id ||
+        b.files.find((f) => f.id === focusId)?.assignment_id ||
+        a.assignments[0]?.id ||
+        '',
+    );
   }
   useEffect(() => {
     refresh()
@@ -341,18 +349,24 @@ type Post = {
   created_at: number;
   replies: Post[];
 };
-export function OnlineDiscussion() {
+export function OnlineDiscussion({
+  focusId = '',
+  clearFocus,
+}: {
+  focusId?: string;
+  clearFocus?: () => void;
+}) {
   const teacher = useLearning()?.user.role === 'teacher';
   const [posts, setPosts] = useState<Post[]>([]),
     [draft, setDraft] = useState(''),
     [reply, setReply] = useState<Record<string, string>>({}),
-    [open, setOpen] = useState(''),
+    [open, setOpen] = useState(focusId),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
     [next, setNext] = useState<number | null>(null);
   async function refresh(older = false) {
     const result = await api<{ posts: Post[]; nextBefore: number | null }>(
-      `/posts${older && next ? `?before=${next}` : ''}`,
+      `/posts${focusId ? '?threadId=' + encodeURIComponent(focusId) : older && next ? `?before=${next}` : ''}`,
     );
     setPosts((p) => (older ? [...p, ...result.posts] : result.posts));
     setNext(result.nextBefore);
@@ -382,6 +396,16 @@ export function OnlineDiscussion() {
       <Heading title="课程讨论">
         与同学和老师交流。请勿发布密码或个人敏感信息。
       </Heading>
+      {focusId && (
+        <div className="mb-4">
+          <p className="mb-2 text-sm text-muted-foreground">
+            正在查看通知关联的讨论。若列表为空，讨论可能已被隐藏。
+          </p>
+          <Button variant="outline" onClick={clearFocus}>
+            返回全部讨论
+          </Button>
+        </div>
+      )}
       <ErrorNotice message={error} />
       <Card className="mb-5">
         <CardContent>
@@ -511,6 +535,7 @@ export function TeacherAdmin() {
           <TabsTrigger value="assignments">发布作业</TabsTrigger>
           <TabsTrigger value="materials">资料管理</TabsTrigger>
           <TabsTrigger value="feedback">提交与反馈</TabsTrigger>
+          <TabsTrigger value="announcements">课程公告</TabsTrigger>
         </TabsList>
         <TabsContent value="users">
           <UsersAdmin />
@@ -523,6 +548,9 @@ export function TeacherAdmin() {
         </TabsContent>
         <TabsContent value="feedback">
           <FeedbackAdmin />
+        </TabsContent>
+        <TabsContent value="announcements">
+          <AnnouncementsAdmin />
         </TabsContent>
       </Tabs>
     </>

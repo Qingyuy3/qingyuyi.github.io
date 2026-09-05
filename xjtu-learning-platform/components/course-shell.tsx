@@ -15,6 +15,7 @@ import { course } from '@/data/course';
 import { useLearning } from '@/learning-platform/session';
 import { OnlineDiscussion, OnlineMaterials, OnlineWork, OnlineCalendar, TeacherAdmin } from '@/learning-platform/views';
 import { InteractiveQuiz } from '@/components/interactive-quiz';
+import { LearningHome, NotificationCenter } from '@/learning-platform/activity-ui';
 
 const navItems: { key: ViewKey; label: string; icon: typeof Home }[] = [
   { key: 'overview', label: '课程概览', icon: Compass },
@@ -27,21 +28,22 @@ const navItems: { key: ViewKey; label: string; icon: typeof Home }[] = [
 ];
 
 export function CourseShell() {
-  const [view, setView] = useState<ViewKey>('overview');
-  const [mobileOpen, setMobileOpen] = useState(false);
   const learning = useLearning();
+  const [view, setView] = useState<ViewKey>(learning ? 'home' : 'overview');
+  const [activityTarget, setActivityTarget] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [accountError, setAccountError] = useState('');
   const visibleNav = learning?.user.role === 'teacher' ? [...navItems, {key:'admin' as ViewKey,label:'教学管理',icon:Settings}] : navItems;
 
   const content = {
-    overview: <OverviewView setView={setView} />, home: <HomeView setView={setView} studentName={learning?.user.name} />, content: <>{learning && <OnlineMaterials />}<ContentView /></>,
+    overview: <OverviewView setView={navigate} />, home: learning ? <LearningHome navigate={navigate} focusId={activityTarget}/> : <HomeView setView={navigate} />, content: <>{learning && <OnlineMaterials />}<ContentView /></>,
     materials: <>{learning && <OnlineMaterials />}<MaterialsView /></>,
-    work: learning ? <><OnlineWork /><section className="mt-10"><h2 className="mb-4 text-xl font-semibold">自主练习（不计入成绩）</h2><InteractiveQuiz /></section></> : <WorkView />,
-    discussion: learning ? <OnlineDiscussion /> : <DiscussionView />, calendar: learning ? <OnlineCalendar setView={setView} /> : <CalendarView />,
+    work: learning ? <><OnlineWork key={activityTarget} focusId={activityTarget}/><section className="mt-10"><h2 className="mb-4 text-xl font-semibold">自主练习（不计入成绩）</h2><InteractiveQuiz /></section></> : <WorkView />,
+    discussion: learning ? <OnlineDiscussion key={activityTarget} focusId={activityTarget} clearFocus={()=>navigate('discussion')}/> : <DiscussionView />, calendar: learning ? <OnlineCalendar setView={navigate} /> : <CalendarView />,
     guide: <GuideView />, admin: learning?.user.role === 'teacher' ? <TeacherAdmin /> : null,
   }[view];
 
-  function navigate(next: ViewKey) { setView(next); setMobileOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  function navigate(next: ViewKey, target = '') { setActivityTarget(target); setView(next); setMobileOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -54,7 +56,7 @@ export function CourseShell() {
               <div className="hidden sm:block"><p className="text-sm font-semibold tracking-tight text-brand-blue">西安交通大学管理学院</p><p className="text-xs text-muted-foreground">智能商务分析与实践</p></div>
             </button>
           </div>
-          {learning ? <div className="flex flex-wrap items-center justify-end gap-2 text-sm"><span>{learning.user.name}</span><Button size="sm" variant="ghost" onClick={learning.changePassword}>改密</Button><Button size="sm" variant="outline" onClick={()=>void learning.logout().catch(e=>setAccountError(e.message))}>退出</Button></div> : <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="查看通知"><Bell /></Button><div className="ml-1 hidden items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 sm:flex"><div className="grid size-7 place-items-center rounded-full bg-secondary text-xs font-semibold">陈</div><span className="text-sm font-medium">陈同学</span></div></div>}
+          {learning ? <div className="flex flex-wrap items-center justify-end gap-2 text-sm"><NotificationCenter navigate={navigate}/><span>{learning.user.name}</span><Button size="sm" variant="ghost" onClick={learning.changePassword}>改密</Button><Button size="sm" variant="outline" onClick={()=>void learning.logout().catch(e=>setAccountError(e.message))}>退出</Button></div> : <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="查看通知"><Bell /></Button><div className="ml-1 hidden items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 sm:flex"><div className="grid size-7 place-items-center rounded-full bg-secondary text-xs font-semibold">陈</div><span className="text-sm font-medium">陈同学</span></div></div>}
         </div>
       </header>
 
