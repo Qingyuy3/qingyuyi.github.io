@@ -337,30 +337,6 @@ export function LearningHome({
       ) : (
         !error && (
           <>
-            {user.role === 'student' ? (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  本周待办为未来 7
-                  天内到期且尚未提交的作业。已提交作业不重复提醒；自主小测不计入待办或正式成绩。
-                </p>
-                <div className="grid gap-5 xl:grid-cols-2">
-                  {taskList('本周待办', todo.week, '未来 7 天没有待交作业。')}
-                  {taskList('逾期未交', todo.overdue, '没有逾期未交作业。')}
-                </div>
-                {!!todo.later.length && taskList('后续作业', todo.later, '')}
-                {!!todo.closed.length &&
-                  taskList('已关闭且未交', todo.closed, '')}
-              </>
-            ) : (
-              <Card>
-                <CardContent className="flex flex-wrap items-center justify-between gap-4">
-                  <p>发布公告、查看提交情况和处理学生反馈。</p>
-                  <Button onClick={() => navigate('admin')}>
-                    进入教学管理
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
             <Card>
               <CardHeader>
                 <CardTitle>课程公告</CardTitle>
@@ -395,6 +371,30 @@ export function LearningHome({
                 ))}
               </CardContent>
             </Card>
+            {user.role === 'student' ? (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  本周待办为未来 7
+                  天内到期且尚未提交的作业。已提交作业不重复提醒；自主小测不计入待办或正式成绩。
+                </p>
+                <div className="grid gap-5 xl:grid-cols-2">
+                  {taskList('本周待办', todo.week, '未来 7 天没有待交作业。')}
+                  {taskList('逾期未交', todo.overdue, '没有逾期未交作业。')}
+                </div>
+                {!!todo.later.length && taskList('后续作业', todo.later, '')}
+                {!!todo.closed.length &&
+                  taskList('已关闭且未交', todo.closed, '')}
+              </>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-wrap items-center justify-between gap-4">
+                  <p>发布公告、查看提交情况和处理学生反馈。</p>
+                  <Button onClick={() => navigate('admin')}>
+                    进入教学管理
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </>
         )
       )}
