@@ -8,6 +8,8 @@ import {
 } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { api, passwordProblem } from './api-client';
+export { api } from './api-client';
 
 export type LearningUser = {
   id: string;
@@ -25,28 +27,6 @@ type Session = {
 };
 const Context = createContext<Session | null>(null);
 export const useLearning = () => useContext(Context);
-export async function api<T>(
-  path: string,
-  method = 'GET',
-  data?: unknown,
-): Promise<T> {
-  const options: RequestInit = {
-    method,
-    credentials: 'same-origin',
-    headers:
-      data === undefined ? undefined : { 'Content-Type': 'application/json' },
-  };
-  if (data !== undefined && method !== 'GET' && method !== 'HEAD') options.body = JSON.stringify(data);
-  const response = await fetch(`/api${path}`, options);
-  const result = await response.json();
-  if (!response.ok)
-    throw new Error(
-      result && typeof result === 'object' && 'error' in result
-        ? String(result.error)
-        : '操作未完成，请重试。',
-    );
-  return result as T;
-}
 export function LearningProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<LearningUser | null>(null),
     [loading, setLoading] = useState(true);
@@ -58,6 +38,7 @@ export function LearningProvider({ children }: { children: ReactNode }) {
     [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false),
     [changing, setChanging] = useState(false);
+  const [showPasswords, setShowPasswords] = useState(false);
   async function refresh() {
     const result = await api<{ user: LearningUser | null }>('/me');
     setUser(result.user);
@@ -71,6 +52,10 @@ export function LearningProvider({ children }: { children: ReactNode }) {
     await api('/logout', 'POST');
     setUser(null);
     setPassword('');
+    setNext('');
+    setConfirm('');
+    setError('');
+    setShowPasswords(false);
     setChanging(false);
   }
   if (loading)
@@ -98,6 +83,13 @@ export function LearningProvider({ children }: { children: ReactNode }) {
           <h2 className="mb-5 mt-7 text-lg font-medium">
             {reset ? '设置个人密码' : '登录课程平台'}
           </h2>
+          {reset && (
+            <p className="mb-4 text-sm leading-6 text-muted-foreground">
+              {user?.mustChangePassword
+                ? '首次登录需要设置个人密码。当前密码请填写老师发给你的临时密码；保存后用新密码重新登录。'
+                : '请输入当前密码，再设置新的个人密码。保存后所有设备都需要重新登录。'}
+            </p>
+          )}
           <form
             className="space-y-4"
             onSubmit={async (e) => {
@@ -107,8 +99,8 @@ export function LearningProvider({ children }: { children: ReactNode }) {
               setError('');
               try {
                 if (reset) {
-                  if (next !== confirm)
-                    throw new Error('两次输入的新密码不一致。');
+                  const problem = passwordProblem(password, next, confirm);
+                  if (problem) throw new Error(problem);
                   await api('/password', 'POST', {
                     currentPassword: password,
                     newPassword: next,
@@ -118,10 +110,15 @@ export function LearningProvider({ children }: { children: ReactNode }) {
                   setPassword('');
                   setNext('');
                   setConfirm('');
+                  setShowPasswords(false);
                   setNotice('密码已更新，请使用新密码登录。');
                 } else {
-                  await api('/login', 'POST', { username, password });
+                  await api('/login', 'POST', {
+                    username: username.trim(),
+                    password,
+                  });
                   setPassword('');
+                  setShowPasswords(false);
                   setNotice('');
                   await refresh();
                 }
@@ -138,6 +135,9 @@ export function LearningProvider({ children }: { children: ReactNode }) {
                 <Input
                   className="mt-2"
                   autoComplete="username"
+                  name="username"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -149,7 +149,8 @@ export function LearningProvider({ children }: { children: ReactNode }) {
               {reset ? '当前密码（首次登录填写临时密码）' : '密码'}
               <Input
                 className="mt-2"
-                type="password"
+                type={showPasswords ? 'text' : 'password'}
+                name="current-password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -163,7 +164,8 @@ export function LearningProvider({ children }: { children: ReactNode }) {
                   新密码
                   <Input
                     className="mt-2"
-                    type="password"
+                    type={showPasswords ? 'text' : 'password'}
+                    name="new-password"
                     autoComplete="new-password"
                     value={next}
                     onChange={(e) => setNext(e.target.value)}
@@ -179,7 +181,8 @@ export function LearningProvider({ children }: { children: ReactNode }) {
                   再次输入新密码
                   <Input
                     className="mt-2"
-                    type="password"
+                    type={showPasswords ? 'text' : 'password'}
+                    name="confirm-password"
                     autoComplete="new-password"
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
@@ -189,6 +192,20 @@ export function LearningProvider({ children }: { children: ReactNode }) {
                   />
                 </label>
               </>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowPasswords(!showPasswords)}
+              aria-pressed={showPasswords}
+            >
+              {showPasswords ? '隐藏密码' : '显示密码，检查粘贴内容'}
+            </Button>
+            {reset && next && (
+              <p className="text-sm text-muted-foreground" role="status">
+                {passwordProblem(password, next, confirm) ||
+                  '密码长度和两次输入均符合要求。'}
+              </p>
             )}
             {error && (
               <p role="alert" className="text-sm text-red-700">
@@ -221,7 +238,16 @@ export function LearningProvider({ children }: { children: ReactNode }) {
     );
   return (
     <Context.Provider
-      value={{ user, logout, changePassword: () => setChanging(true) }}
+      value={{
+        user,
+        logout,
+        changePassword: () => {
+          setError('');
+          setNotice('');
+          setShowPasswords(false);
+          setChanging(true);
+        },
+      }}
     >
       {children}
     </Context.Provider>

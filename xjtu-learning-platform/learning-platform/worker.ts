@@ -12,6 +12,7 @@ import {
 } from './http';
 import { handleUploads } from './uploads';
 import { handleMaterialAdmin } from './materials';
+import { handleSubmissionOverview } from './submissions';
 
 type User = {
   id: string;
@@ -124,8 +125,20 @@ async function handle(request: Request, env: PagesEnv): Promise<Response> {
       body: { newPassword, currentPassword, revokeOtherSessions: true },
       asResponse: true,
     });
-    if (!result.ok)
-      return json({ error: '修改失败，请检查当前密码和新密码要求。' }, 400);
+    if (!result.ok) {
+      const failure = (await result.json().catch(() => null)) as {
+        code?: string;
+      } | null;
+      return json(
+        {
+          error:
+            failure?.code === 'INVALID_PASSWORD'
+              ? '当前密码不正确。首次登录请填写教师提供的临时密码，并检查是否多粘贴了空格。'
+              : '密码未能更新。请检查当前密码；新密码需为 12–128 位且不同于当前密码。',
+        },
+        400,
+      );
+    }
     // Revoke every session; a fresh sign-in prevents session fixation after activation.
     await env.DB.batch([
       env.DB.prepare(
@@ -139,6 +152,9 @@ async function handle(request: Request, env: PagesEnv): Promise<Response> {
   const teacher = user.role === 'admin';
   if (path.startsWith('/api/admin/'))
     requireCondition(teacher, 403, '此操作仅限教师。');
+
+  if (path === '/api/admin/submission-overview' && request.method === 'GET')
+    return handleSubmissionOverview(request, env, user);
 
   if (path === '/api/admin/users' && request.method === 'GET') {
     const result = await env.DB.prepare(

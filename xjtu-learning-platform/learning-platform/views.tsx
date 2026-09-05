@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api, useLearning, type LearningUser } from './session';
 import { MaterialManager } from './material-manager';
+import { SubmissionOverview } from './submission-overview';
 import {
   parseRoster,
   mergeCredential,
@@ -1144,75 +1145,26 @@ function MaterialsAdmin() {
 }
 
 function FeedbackAdmin() {
-  const [files, setFiles] = useState<CourseFile[]>([]),
-    [error, setError] = useState('');
-  async function refresh() {
-    setFiles((await api<{ files: CourseFile[] }>('/submissions')).files);
-  }
-  useEffect(() => {
-    refresh().catch((e) => setError(e.message));
-  }, []);
-  function exportRecords() {
-    const cell = (v: unknown) =>
-      `"${String(v ?? '')
-        .replace(/^[=+@-]/, "'$&")
-        .replaceAll('"', '""')}"`;
-    const rows = [
-      ['姓名', '作业', '文件', '提交时间', '成绩', '反馈'],
-      ...files.map((f) => [
-        f.name,
-        f.title,
-        f.filename,
-        date(f.completed_at),
-        f.grade,
-        f.feedback,
-      ]),
-    ];
-    const url = URL.createObjectURL(
-      new Blob(
-        ['\ufeff' + rows.map((row) => row.map(cell).join(',')).join('\r\n')],
-        { type: 'text/csv;charset=utf-8' },
-      ),
-    );
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = '作业提交记录.csv';
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
+  const [error, setError] = useState('');
   return (
     <>
       <ErrorNotice message={error} />
-      <div className="mb-4 flex gap-3">
-        <Button
-          variant="outline"
-          onClick={() => void refresh().catch((e) => setError(e.message))}
-        >
-          刷新记录
-        </Button>
-        <Button
-          variant="outline"
-          disabled={!files.length}
-          onClick={exportRecords}
-        >
-          导出提交与成绩记录
-        </Button>
-      </div>
-      <div className="space-y-4">
-        {files.map((f) => (
-          <FeedbackRow key={f.id} file={f} report={setError} />
-        ))}
-        {!files.length && <p>暂无学生提交。</p>}
-      </div>
+      <SubmissionOverview
+        renderFeedback={(file, onSaved) => (
+          <FeedbackRow file={file} report={setError} onSaved={onSaved} />
+        )}
+      />
     </>
   );
 }
 function FeedbackRow({
   file,
   report,
+  onSaved,
 }: {
   file: CourseFile;
   report: (s: string) => void;
+  onSaved: (grade: number | null, feedback: string) => void;
 }) {
   const [grade, setGrade] = useState(
       file.grade === null ? '' : String(file.grade),
@@ -1220,6 +1172,10 @@ function FeedbackRow({
     [feedback, setFeedback] = useState(file.feedback),
     [busy, setBusy] = useState(false),
     [saved, setSaved] = useState(false);
+  useEffect(() => {
+    setGrade(file.grade === null ? '' : String(file.grade));
+    setFeedback(file.feedback);
+  }, [file.grade, file.feedback]);
   return (
     <Card>
       <CardContent>
@@ -1267,6 +1223,7 @@ function FeedbackRow({
                 feedback,
               });
               setSaved(true);
+              onSaved(grade === '' ? null : Number(grade), feedback);
             } catch (e) {
               report(e instanceof Error ? e.message : '保存失败。');
             } finally {
